@@ -40,12 +40,12 @@ export default function Navbar() {
   return (
     <header
       className={`fixed left-0 top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"
+        isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-5"
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between px-4">
+      <div className="container mx-auto flex items-center justify-between px-5">
         <Link href="/" className={`text-2xl font-bold ${isScrolled ? "text-gray-900" : "text-white"}`}>
-          Construction Co.
+         Shree Jayanti Nirman Sewa
         </Link>
 
         {/* Desktop Navigation */}
@@ -79,7 +79,7 @@ export default function Navbar() {
                 } px-4 py-2 text-sm font-medium transition-colors`}
               >
                 <Phone className="mr-2 h-4 w-4" />
-                +123 456 7890
+              01-4993108
               </Link>
             </li>
           </ul>

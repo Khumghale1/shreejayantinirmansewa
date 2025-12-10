@@ -135,7 +135,7 @@ export default function ServicesPage() {
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="mb-6 text-3xl font-bold tracking-tight text-gray-900">What We Offer</h2>
             <p className="mb-12 text-lg text-gray-700">
-              At Construction Co., we offer a wide range of services tailored to meet your specific needs. From
+              At Shree Jayanti Nirman Sewa, we offer a wide range of services tailored to meet your specific needs. From
               residential construction to commercial projects, our team of experts is ready to bring your vision to
               life.
             </p>
