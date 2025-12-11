@@ -1,76 +1,21 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import { type SanityDocument } from "next-sanity"
+import { client } from "../sanity/client"
+import { urlFor } from "../sanity/image"
 
-export default function ProjectsPage() {
+const PROJECTS_QUERY = `*[
+  _type == "project"
+  && defined(slug.current)
+]|order(order asc){_id, title, slug, description, category, location, image, order}`
+
+const options = { next: { revalidate: 30 } }
+
+export default async function ProjectsPage() {
+  const projects = await client.fetch<SanityDocument[]>(PROJECTS_QUERY, {}, options)
+
   const categories = ["All", "Residential", "Commercial", "Renovation", "Interior Design"]
-
-  const projects = [
-    {
-      title: "Luxury Villa",
-      category: "Residential",
-      location: "Beverly Hills, CA",
-      description: "A modern 5-bedroom luxury villa with swimming pool, home theater, and smart home technology.",
-      image: "/images/project1.jpg",
-    },
-    {
-      title: "Office Complex",
-      category: "Commercial",
-      location: "Downtown Metro",
-      description: "A 10-story office building with sustainable design features and collaborative workspaces.",
-      image: "/images/project2.jpg",
-    },
-    {
-      title: "Modern Apartment",
-      category: "Residential",
-      location: "Riverside Heights",
-      description: "Contemporary apartment complex with 50 units featuring modern amenities and green spaces.",
-      image: "/images/project3.jpg",
-    },
-    {
-      title: "Restaurant Renovation",
-      category: "Renovation",
-      location: "Harbor District",
-      description: "Complete renovation of a historic building into a modern fine dining restaurant.",
-      image: "/images/project4.jpg",
-    },
-    {
-      title: "Corporate Headquarters",
-      category: "Commercial",
-      location: "Business Park",
-      description: "State-of-the-art corporate headquarters with innovative design and sustainable features.",
-      image: "/images/project5.jpg",
-    },
-    {
-      title: "Luxury Condo Interior",
-      category: "Interior Design",
-      location: "Skyline Towers",
-      description: "High-end interior design for a penthouse condo with custom furnishings and smart home integration.",
-      image: "/images/project6.jpg",
-    },
-    {
-      title: "Historic Home Restoration",
-      category: "Renovation",
-      location: "Heritage District",
-      description:
-        "Careful restoration of a 100-year-old historic home, preserving original features while adding modern amenities.",
-      image: "/images/project7.jpg",
-    },
-    {
-      title: "Shopping Mall",
-      category: "Commercial",
-      location: "Eastside",
-      description: "Modern shopping center with 50 retail spaces, food court, and entertainment facilities.",
-      image: "/images/project8.jpg",
-    },
-    {
-      title: "Beach House",
-      category: "Residential",
-      location: "Coastal Shores",
-      description: "Contemporary beach house designed to withstand coastal conditions while maximizing ocean views.",
-      image: "/images/project9.jpg",
-    },
-  ]
 
   return (
     <>
@@ -108,14 +53,14 @@ export default function ProjectsPage() {
 
           {/* Projects Grid */}
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project, i) => (
+            {projects.map((project) => (
               <div
-                key={i}
+                key={project._id}
                 className="group overflow-hidden rounded-lg bg-white shadow-lg transition-all hover:shadow-xl"
               >
                 <div className="relative h-64 w-full overflow-hidden">
                   <Image
-                    src={project.image || "/placeholder.svg"}
+                    src={project.image ? urlFor(project.image).width(800).height(600).url() : "/placeholder.svg"}
                     alt={project.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -129,7 +74,7 @@ export default function ProjectsPage() {
                   <p className="mb-3 text-sm text-yellow-600">{project.location}</p>
                   <p className="mb-4 text-gray-700">{project.description}</p>
                   <Link
-                    href={`/projects/${i}`}
+                    href={`/projects/${project.slug.current}`}
                     className="inline-flex items-center text-sm font-medium text-yellow-600 hover:text-yellow-500"
                   >
                     View Project Details

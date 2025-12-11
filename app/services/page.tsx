@@ -1,116 +1,19 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import { type SanityDocument } from "next-sanity"
+import { client } from "../sanity/client"
+import { urlFor } from "../sanity/image"
 
-export default function ServicesPage() {
-  const services = [
-    {
-      id: "residential",
-      title: "Residential Construction",
-      description:
-        "We build modern and durable homes with high-quality materials, attention to detail, and a focus on client satisfaction.",
-      features: [
-        "Custom home building",
-        "Home additions and extensions",
-        "Basement finishing",
-        "Garage construction",
-        "Outdoor living spaces",
-      ],
-      image: "/images/residential.jpg",
-    },
-    {
-      id: "commercial",
-      title: "Commercial Projects",
-      description:
-        "Our team provides innovative and efficient solutions for business spaces, including offices, retail stores, and industrial buildings.",
-      features: [
-        "Office buildings",
-        "Retail spaces",
-        "Restaurants and hospitality",
-        "Industrial facilities",
-        "Medical offices",
-      ],
-      image: "/images/commercial.jpg",
-    },
-    {
-      id: "renovations",
-      title: "Renovations",
-      description:
-        "Transform your space with expert renovation services for kitchens, bathrooms, living areas, and more.",
-      features: [
-        "Kitchen remodeling",
-        "Bathroom renovations",
-        "Whole house renovations",
-        "Historic restorations",
-        "Commercial renovations",
-      ],
-      image: "/images/renovation.jpg",
-    },
-    {
-      id: "architectural",
-      title: "Architectural Design",
-      description:
-        "Work with our in-house architects to create stunning and functional designs that reflect your vision and needs.",
-      features: [
-        "Custom architectural plans",
-        "3D modeling and visualization",
-        "Sustainable design",
-        "Permit acquisition assistance",
-        "Building code compliance",
-      ],
-      image: "/images/architectural.jpg",
-    },
-    {
-      id: "interior",
-      title: "Interior Design",
-      description:
-        "Enhance the look and feel of your home or office with our professional interior design services, tailored to match your style.",
-      features: [
-        "Space planning",
-        "Color consultation",
-        "Furniture selection",
-        "Lighting design",
-        "Material and finish selection",
-      ],
-      image: "/images/interior.jpg",
-    },
-    {
-      id: "landscaping",
-      title: "Landscaping",
-      description:
-        "Create beautiful outdoor spaces with our landscaping services, including garden design, hardscaping, and maintenance.",
-      features: ["Garden design", "Hardscaping", "Outdoor kitchens", "Water features", "Landscape lighting"],
-      image: "/images/landscaping.jpg",
-    },
-    {
-      id: "project-management",
-      title: "Project Management",
-      description:
-        "From planning to execution, our project management services ensure your construction projects are completed on time and within budget.",
-      features: [
-        "Budget development and management",
-        "Schedule creation and tracking",
-        "Contractor coordination",
-        "Quality control",
-        "Progress reporting",
-      ],
-      image: "/images/project-management.jpg",
-    },
-    {
-      id: "green-building",
-      title: "Green Building Solutions",
-      description:
-        "Adopt sustainable construction practices with our eco-friendly materials and energy-efficient designs.",
-      features: [
-        "Energy-efficient design",
-        "Sustainable materials",
-        "Solar panel installation",
-        "Water conservation systems",
-        "LEED certification assistance",
-      ],
-      image: "/images/green-building.jpg",
-    },
-  ]
+const SERVICES_QUERY = `*[
+  _type == "service"
+  && defined(slug.current)
+]|order(order asc){_id, title, slug, description, features, image, order}`
+
+const options = { next: { revalidate: 30 } }
+
+export default async function ServicesPage() {
+  const services = await client.fetch<SanityDocument[]>(SERVICES_QUERY, {}, options)
 
   return (
     <>
@@ -142,15 +45,15 @@ export default function ServicesPage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {services.slice(0, 6).map((service) => (
+            {services.map((service) => (
               <Link
-                key={service.id}
-                href={`#${service.id}`}
+                key={service._id}
+                href={`/services/${service.slug.current}`}
                 className="group overflow-hidden rounded-lg bg-gray-50 shadow-md transition-all hover:shadow-lg"
               >
                 <div className="relative h-48 w-full overflow-hidden">
                   <Image
-                    src={service.image || "/placeholder.svg"}
+                    src={service.image ? urlFor(service.image).width(800).height(600).url() : "/placeholder.svg"}
                     alt={service.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -165,52 +68,6 @@ export default function ServicesPage() {
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Detailed Services */}
-      <section className="bg-gray-100 py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-gray-900">Our Services in Detail</h2>
-
-          <div className="space-y-24">
-            {services.map((service, index) => (
-              <div
-                id={service.id}
-                key={service.id}
-                className={`grid gap-8 md:grid-cols-2 md:items-center ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}
-              >
-                <div className={`${index % 2 === 1 ? "md:order-2" : "md:order-1"}`}>
-                  <h3 className="mb-4 text-2xl font-bold text-gray-900">{service.title}</h3>
-                  <p className="mb-6 text-lg text-gray-700">{service.description}</p>
-                  <ul className="mb-6 space-y-2">
-                    {service.features.map((feature, i) => (
-                      <li key={i} className="flex items-center">
-                        <span className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-yellow-500 text-white">
-                          ✓
-                        </span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center rounded-md bg-yellow-500 px-6 py-3 font-medium text-black transition-colors hover:bg-yellow-400"
-                  >
-                    Request a Quote
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </div>
-                <div
-                  className={`relative h-[400px] overflow-hidden rounded-lg shadow-xl ${
-                    index % 2 === 1 ? "md:order-1" : "md:order-2"
-                  }`}
-                >
-                  <Image src={service.image || "/placeholder.svg"} alt={service.title} fill className="object-cover" />
-                </div>
-              </div>
             ))}
           </div>
         </div>
